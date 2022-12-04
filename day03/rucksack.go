@@ -16,31 +16,36 @@ func main() {
 	}
 	defer file.Close()
 
-	duplicates := []string{}
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
+	badges := []string{}
+	reader := bufio.NewReader(file)
+	for {
+		line, _ := reader.ReadString('\n')
+		if len(strings.TrimSpace(line)) == 0 {
+			break
+		}
+		a := strings.Split(line, "")
+		line, _ = reader.ReadString('\n')
+		b := strings.Split(line, "")
+		line, _ = reader.ReadString('\n')
+		c := strings.Split(line, "")
 
-		contents := strings.Split(line, "")
-		compartmentone := contents[:len(contents)/2]
-		compartmenttwo := contents[len(contents)/2:]
-
-		// fmt.Println(compartmentone)
-		// fmt.Println(compartmenttwo)
-
-		for _, item := range compartmentone {
-			if slices.Contains(compartmenttwo, item) {
-				duplicates = append(duplicates, item)
+		badge := ""
+		for _, item := range a {
+			if slices.Contains(b, item) && slices.Contains(c, item) {
+				badge = item
 				break
 			}
 		}
+		fmt.Printf("found badge %s\n", badge)
+
+		badges = append(badges, badge)
 	}
 
-	fmt.Println(duplicates)
+	fmt.Println(badges)
 
 	score := 0
 	values_map := get_values_map()
-	for _, item := range duplicates {
+	for _, item := range badges {
 		score += values_map[item]
 	}
 
