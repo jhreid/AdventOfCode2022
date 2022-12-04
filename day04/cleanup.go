@@ -30,9 +30,6 @@ func main() {
 		if result2 {
 			total2 += 1
 		}
-		if result2 == false {
-			fmt.Printf("%s .  false\n", line)
-		}
 	}
 
 	fmt.Printf("Found %d fully contained\n", total1)
