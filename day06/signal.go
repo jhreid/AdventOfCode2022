@@ -18,7 +18,7 @@ func main() {
 
 func find_start(signal_buffer string, length int) int {
 	found := 0
-	for i := 0; i < len(signal_buffer); i++ {
+	for i := 0; i < len(signal_buffer)-length; i++ {
 		if count_unique_chars(signal_buffer[i:i+length]) == length {
 			found = i
 			break
