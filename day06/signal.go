@@ -12,23 +12,23 @@ func main() {
 	}
 	signal := string(file)
 
-	fmt.Printf("Start: %d\n", find_start_of_packet(signal))
+	fmt.Printf("Start of packet: %d\n", find_start(signal, 4))
+	fmt.Printf("Start of message: %d\n", find_start(signal, 14))
 }
 
-func find_start_of_packet(signal_buffer string) int {
+func find_start(signal_buffer string, length int) int {
 	found := 0
 	for i := 0; i < len(signal_buffer); i++ {
-		if count_unique_chars(signal_buffer[i:i+4]) == 4 {
+		if count_unique_chars(signal_buffer[i:i+length]) == length {
 			found = i
 			break
 		}
 	}
 
-	return found + 4
+	return found + length
 }
 
 func count_unique_chars(s string) int {
-	fmt.Println(s)
 	chars := make(map[rune]int)
 	for _, c := range s {
 		chars[c] = chars[c] + 1
