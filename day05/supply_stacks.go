@@ -17,11 +17,7 @@ func main() {
 	stacks := parts[0]
 	instructions := strings.Split(parts[1], "\n")
 
-	// fmt.Printf("Stacks:\n%s\n\n\n", stacks)
-	// fmt.Printf("Instructions:\n%s\n", instructions)
-
 	stack_map_one := process_stacks(stacks)
-	// fmt.Println(stack_map)
 	stack_map_two := process_stacks(stacks)
 
 	fmt.Println(part_one(instructions, stack_map_one))
@@ -47,8 +43,6 @@ func part_one(instructions []string, input map[int][]string) string {
 		}
 	}
 
-	// fmt.Println(stacks)
-
 	for i := 1; i <= len(stacks); i++ {
 		output = output + stacks[i][len(stacks[i])-1]
 	}
@@ -73,10 +67,7 @@ func part_two(instructions []string, input map[int][]string) string {
 			stacks[to] = append(stacks[to], stacks[from][len(stacks[from])-i])
 		}
 		stacks[from] = stacks[from][:len(stacks[from])-n]
-		// fmt.Println(stacks[from])
 	}
-
-	// fmt.Println(stacks)
 
 	for i := 1; i <= len(stacks); i++ {
 		output = output + stacks[i][len(stacks[i])-1]
