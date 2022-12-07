@@ -93,4 +93,21 @@ outerLoop:
 	}
 
 	fmt.Println(total)
+
+	filtered := []int64{}
+	for _, d := range allFolders {
+		size := d.calc_size()
+		if size >= 30000000-(70000000-root.calc_size()) {
+			filtered = append(filtered, size)
+		}
+	}
+	smallest := filtered[0]
+	for _, s := range filtered {
+		if s < smallest {
+			smallest = s
+
+		}
+	}
+
+	fmt.Println(smallest)
 }
