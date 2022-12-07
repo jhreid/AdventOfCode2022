@@ -12,7 +12,6 @@ type elfDir struct {
 	name   string
 	files  map[string]*elfFile
 	dirs   map[string]*elfDir
-	size   int64
 }
 
 type elfFile struct {
@@ -38,7 +37,6 @@ func main() {
 	}
 	input := strings.Split(string(file), "\n")
 
-	smallFolders := make(map[string]*elfDir)
 	allFolders := []*elfDir{}
 
 	root := new(elfDir)
@@ -54,10 +52,6 @@ outerLoop:
 				if currentDir.name == "/" {
 					break outerLoop
 				}
-				if currentDir.size <= 100000 {
-					smallFolders[currentDir.name] = currentDir
-				}
-				currentDir.parent.size += currentDir.size
 				currentDir = currentDir.parent
 			}
 		}
@@ -75,10 +69,6 @@ outerLoop:
 				continue
 			}
 			if tokens[2] == ".." {
-				if currentDir.size <= 100000 {
-					smallFolders[currentDir.name] = currentDir
-				}
-				currentDir.parent.size += currentDir.size
 				currentDir = currentDir.parent
 			} else {
 				currentDir = currentDir.dirs[tokens[2]]
@@ -89,26 +79,18 @@ outerLoop:
 				newFile := new(elfFile)
 				newFile.name = tokens[1]
 				newFile.size = size
-				currentDir.size += size
 				currentDir.files[tokens[1]] = newFile
 			}
 		}
 	}
 
 	var total int64 = 0
-	for _, d := range smallFolders {
-		total += d.size
-	}
-
-	var total2 int64 = 0
 	for _, d := range allFolders {
-		size := d.size
+		size := d.calc_size()
 		if size <= 100000 {
-			total2 += size
+			total += size
 		}
-		fmt.Printf("Size of %s : %d\n", d.name, d.calc_size())
 	}
 
 	fmt.Println(total)
-	fmt.Println(total2)
 }
