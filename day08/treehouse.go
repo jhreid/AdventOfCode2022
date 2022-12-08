@@ -27,14 +27,18 @@ func main() {
 		forest = append(forest, row)
 	}
 
-	fmt.Println(count_visible(forest))
+	results := count_visible(forest)
+	fmt.Println(results[0])
+	fmt.Println(results[1])
 }
 
-func count_visible(trees [][]int) int {
+func count_visible(trees [][]int) []int {
 	total := (len(trees) + len(trees[0]) - 2) * 2
+	scenic_score := 0
 
 	for row := 1; row < len(trees)-1; row++ {
 		for col := 1; col < len(trees[0])-1; col++ {
+			current := trees[row][col]
 			west := trees[row][:col]
 			east := trees[row][col+1:]
 			north := []int{}
@@ -46,14 +50,37 @@ func count_visible(trees [][]int) int {
 				south = append(south, t[col])
 			}
 
-			if trees[row][col] > max(west) || trees[row][col] > max(east) || trees[row][col] > max(north) || trees[row][col] > max(south) {
+			if current > max(west) || current > max(east) || current > max(north) || current > max(south) {
 				total += 1
 			}
 
+			left := trees_in_view(current, reverse(west))
+			right := trees_in_view(current, east)
+			down := trees_in_view(current, south)
+			up := trees_in_view(current, reverse(north))
+			score := right * up * left * down
+			if score > scenic_score {
+				scenic_score = score
+			}
 		}
 	}
 
-	return total
+	return []int{total, scenic_score}
+}
+
+func trees_in_view(tree int, s []int) int {
+	in_view := 0
+	if tree > max(s) {
+		in_view = len(s)
+	} else {
+		for i, t := range s {
+			if tree <= t {
+				in_view = i + 1
+				break
+			}
+		}
+	}
+	return in_view
 }
 
 func max(slice []int) int {
@@ -64,4 +91,12 @@ func max(slice []int) int {
 		}
 	}
 	return max
+}
+
+func reverse(s []int) []int {
+	r := []int{}
+	for i := len(s) - 1; i >= 0; i-- {
+		r = append(r, s[i])
+	}
+	return r
 }
