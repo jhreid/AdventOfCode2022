@@ -20,10 +20,12 @@ func main() {
 	}
 	defer file.Close()
 
+	rope := [10]Pos{}
+	numberOfKnots := len(rope)
 	locations := make(map[Pos]int)
 	tails := []Pos{}
-	head := Pos{0, 0}
-	tail := Pos{0, 0}
+	head := rope[0]
+	tail := rope[numberOfKnots-1]
 	locations[tail] = 1
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -33,55 +35,13 @@ func main() {
 			direction := instruction[0]
 			distance, _ := strconv.Atoi(instruction[1])
 
-			for d := 1; d <= distance; d++ {
-				tx := tail.x
-				ty := tail.y
-				switch direction {
-				case "R":
-					{
-						head = Pos{head.x + 1, head.y}
-						if head.x-tx > 1 {
-							tx += 1
-							if ty != head.y && d > 1 {
-								ty = head.y
-							}
-						}
-					}
-				case "U":
-					{
-						head = Pos{head.x, head.y + 1}
-						if head.y-ty > 1 {
-							ty += 1
-							if tx != head.x && d > 1 {
-								tx = head.x
-							}
-						}
-					}
-				case "L":
-					{
-						head = Pos{head.x - 1, head.y}
-						if head.x-tx < -1 {
-							tx -= 1
-							if ty != head.y && d > 1 {
-								ty = head.y
-							}
-						}
-					}
-				case "D":
-					{
-						head = Pos{head.x, head.y - 1}
-						if head.y-ty < -1 {
-							ty -= 1
-							if tx != head.x && d > 1 {
-								tx = head.x
-							}
-						}
-					}
-				}
-				tail = Pos{tx, ty}
-				locations[tail] += 1
-				tails = append(tails, tail)
+			newPositions := processInstruction(distance, direction, head, tail)
+			head = newPositions[0]
+			tail = newPositions[1]
+			for _, t := range newPositions[2:] {
+				locations[t] += 1
 			}
+			tails = append(tails, tail)
 
 			// fmt.Printf("Head position: %v\n", head)
 			// fmt.Printf("Tail position: %v\n", tail)
@@ -91,18 +51,56 @@ func main() {
 	fmt.Printf("Positions visited: %d\n", len(locations))
 }
 
-func right() {
+func processInstruction(distance int, direction string, head Pos, tail Pos) []Pos {
+	var tails []Pos
+	for d := 1; d <= distance; d++ {
+		tx := tail.x
+		ty := tail.y
+		switch direction {
+		case "R":
+			{
+				head = Pos{head.x + 1, head.y}
+				if head.x-tx > 1 {
+					tx += 1
+					if ty != head.y && d > 1 {
+						ty = head.y
+					}
+				}
+			}
+		case "U":
+			{
+				head = Pos{head.x, head.y + 1}
+				if head.y-ty > 1 {
+					ty += 1
+					if tx != head.x && d > 1 {
+						tx = head.x
+					}
+				}
+			}
+		case "L":
+			{
+				head = Pos{head.x - 1, head.y}
+				if head.x-tx < -1 {
+					tx -= 1
+					if ty != head.y && d > 1 {
+						ty = head.y
+					}
+				}
+			}
+		case "D":
+			{
+				head = Pos{head.x, head.y - 1}
+				if head.y-ty < -1 {
+					ty -= 1
+					if tx != head.x && d > 1 {
+						tx = head.x
+					}
+				}
+			}
+		}
+		tail = Pos{tx, ty}
+		tails = append(tails, tail)
+	}
 
-}
-
-func left() {
-
-}
-
-func up() {
-
-}
-
-func down() {
-
+	return append([]Pos{head, tail}, tails...)
 }
