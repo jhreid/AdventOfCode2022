@@ -90,3 +90,19 @@ func main() {
 
 	fmt.Printf("Positions visited: %d\n", len(locations))
 }
+
+func right() {
+
+}
+
+func left() {
+
+}
+
+func up() {
+
+}
+
+func down() {
+
+}
