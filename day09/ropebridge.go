@@ -20,7 +20,7 @@ func main() {
 	}
 	defer file.Close()
 
-	rope := [10]Pos{}
+	rope := []Pos{{0, 0}, {0, 0}}
 	numberOfKnots := len(rope)
 	locations := make(map[Pos]int)
 	tails := []Pos{}
@@ -35,7 +35,7 @@ func main() {
 			direction := instruction[0]
 			distance, _ := strconv.Atoi(instruction[1])
 
-			newPositions := processInstruction(distance, direction, head, tail)
+			newPositions := processInstruction(distance, direction, []Pos{head, tail})
 			head = newPositions[0]
 			tail = newPositions[1]
 			for _, t := range newPositions[2:] {
@@ -51,8 +51,21 @@ func main() {
 	fmt.Printf("Positions visited: %d\n", len(locations))
 }
 
-func processInstruction(distance int, direction string, head Pos, tail Pos) []Pos {
+func moveKnots(direction string, head Pos, rest []Pos) []Pos {
+	tail := rest[0]
+	switch direction {
+	case "R":
+	case "L":
+	case "U":
+	case "D":
+	}
+	return moveKnots(direction, tail, rest[1:])
+}
+
+func processInstruction(distance int, direction string, rope []Pos) []Pos {
 	var tails []Pos
+	head := rope[0]
+	tail := rope[1]
 	for d := 1; d <= distance; d++ {
 		tx := tail.x
 		ty := tail.y
