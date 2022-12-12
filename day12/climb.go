@@ -12,13 +12,13 @@ type Pos struct {
 }
 
 func main() {
-	file, err := os.ReadFile("test.txt")
+	file, err := os.ReadFile("input.txt")
 	if err != nil {
 		fmt.Printf("Could not open input file: %v\n", err)
 	}
 	input := strings.Split(string(file), "\n")
 
-	var start Pos
+	var starts []Pos
 	var end Pos
 
 	hill := [][]byte{}
@@ -29,19 +29,24 @@ func main() {
 	}
 	for i := range hill {
 		for j := range hill[i] {
-			if hill[i][j] == 'S' {
-				start = Pos{i, j}
+			if hill[i][j] == 'S' || hill[i][j] == 'a' {
+				starts = append(starts, Pos{i, j})
 			} else if hill[i][j] == 'E' {
 				end = Pos{i, j}
 			}
 		}
 	}
-	hill[end.x][end.y] = 'z' + 1
-	hill[start.x][start.y] = 'a' - 1
+	hill[end.x][end.y] = 'z'
 
-	shortest := breadthFirstSearch(hill, start, end)
+	shortest := 412
+	for _, start := range starts {
+		hill[start.x][start.y] = 'a'
+		result := breadthFirstSearch(hill, start, end)
+		if result < shortest {
+			shortest = result
+		}
+	}
 
-	fmt.Printf("Starting at %v and ending at %v\n\n", start, end)
 	fmt.Println(shortest)
 }
 
@@ -50,6 +55,7 @@ func breadthFirstSearch(hill [][]byte, start Pos, end Pos) int {
 	visited[start] = true
 	queue := []Pos{start}
 	steps := 0
+	found := false
 
 	for len(queue) > 0 {
 		k := len(queue)
@@ -59,6 +65,7 @@ func breadthFirstSearch(hill [][]byte, start Pos, end Pos) int {
 			neighbours := []Pos{{cur.x + 1, cur.y}, {cur.x - 1, cur.y}, {cur.x, cur.y + 1}, {cur.x, cur.y - 1}}
 
 			if cur == end {
+				found = true
 				return steps
 			}
 
@@ -69,7 +76,7 @@ func breadthFirstSearch(hill [][]byte, start Pos, end Pos) int {
 				if visited[n] {
 					continue
 				}
-				if hill[n.x][n.y] > hill[cur.x][cur.y] && hill[n.x][n.y]-hill[cur.x][cur.y] > 1 {
+				if (hill[n.x][n.y] > hill[cur.x][cur.y]) && (hill[n.x][n.y]-hill[cur.x][cur.y] > 1) {
 					continue
 				}
 				visited[n] = true
@@ -77,6 +84,10 @@ func breadthFirstSearch(hill [][]byte, start Pos, end Pos) int {
 			}
 		}
 		steps++
+	}
+
+	if !found {
+		return 500
 	}
 
 	return steps
