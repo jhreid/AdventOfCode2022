@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"unicode"
@@ -82,4 +83,26 @@ func main() {
 	}
 
 	println(partOne)
+
+	input2 := make([]string, 0)
+	for _, s := range input {
+		pair := strings.Split(s, "\n")
+		input2 = append(input2, pair[0])
+		input2 = append(input2, pair[1])
+	}
+	input2 = append(input2, "[[2]]")
+	input2 = append(input2, "[[6]]")
+
+	sort.Slice(input2, func(i, j int) bool {
+		return leftSmaller(input2[i], input2[j])
+	})
+
+	partTwo := 1
+	for i, s := range input2 {
+		if s == "[[2]]" || s == "[[6]]" {
+			partTwo = partTwo * (i + 1)
+		}
+	}
+
+	fmt.Println(partTwo)
 }
