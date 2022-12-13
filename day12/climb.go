@@ -11,6 +11,22 @@ type Pos struct {
 	y int
 }
 
+type Node struct {
+	p     Pos
+	count int
+}
+
+type Queue []Node
+
+func (q Queue) contains(node Node) bool {
+	for _, n := range q {
+		if n.p == node.p {
+			return true
+		}
+	}
+	return false
+}
+
 func main() {
 	file, err := os.ReadFile("input.txt")
 	if err != nil {
@@ -18,6 +34,7 @@ func main() {
 	}
 	input := strings.Split(string(file), "\n")
 
+	var start Pos
 	var starts []Pos
 	var end Pos
 
@@ -29,6 +46,9 @@ func main() {
 	}
 	for i := range hill {
 		for j := range hill[i] {
+			if hill[i][j] == 'S' {
+				start = Pos{i, j}
+			}
 			if hill[i][j] == 'S' || hill[i][j] == 'a' {
 				starts = append(starts, Pos{i, j})
 			} else if hill[i][j] == 'E' {
@@ -48,6 +68,61 @@ func main() {
 	}
 
 	fmt.Println(shortest)
+
+	astar(hill, Node{start, 0}, Node{end, 0})
+}
+
+func astar(hill [][]byte, start Node, end Node) {
+	queue := Queue{end}
+
+	i := 0
+	for i < len(queue) {
+		current := queue[i]
+		if current.p == start.p {
+			break
+		}
+		neighbours := []Node{{Pos{current.p.x + 1, current.p.y}, i + 1}, {Pos{current.p.x - 1, current.p.y}, i + 1}, {Pos{current.p.x, current.p.y + 1}, i + 1}, {Pos{current.p.x, current.p.y - 1}, i + 1}}
+		println(neighbours)
+
+		for _, n := range neighbours {
+			if n.p.x < 0 || n.p.x >= len(hill) || n.p.y < 0 || n.p.y >= len(hill[0]) {
+				continue
+			}
+			if queue.contains(n) {
+				continue
+			}
+			if (hill[current.p.x][current.p.y] > hill[n.p.x][n.p.y]) && (hill[current.p.x][current.p.y]-hill[n.p.x][n.p.y] > 1) {
+				continue
+			}
+			queue = append(queue, n)
+		}
+
+		i++
+	}
+
+	fmt.Println(i)
+
+	visited := make(map[Pos]string)
+	for _, n := range queue {
+		visited[n.p] = string(hill[n.p.x][n.p.y])
+	}
+	for x := 0; x < len(hill); x++ {
+		for y := 0; y < len(hill[0]); y++ {
+			n, exist := visited[Pos{x, y}]
+			if exist {
+				fmt.Print(n)
+			} else {
+				fmt.Print(".")
+			}
+		}
+		fmt.Println()
+	}
+
+	fmt.Println()
+	fmt.Println()
+
+	fmt.Println()
+	fmt.Println()
 }
 
 func breadthFirstSearch(hill [][]byte, start Pos, end Pos) int {
