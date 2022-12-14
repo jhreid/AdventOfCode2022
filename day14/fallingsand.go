@@ -21,10 +21,6 @@ func makePos(s string) Pos {
 
 type Cave map[Pos]int
 
-func (c Cave) isRock(p Pos) bool {
-	return c[p] == 1
-}
-
 func (c Cave) maxY() int {
 	y := 0
 	for p, _ := range c {
