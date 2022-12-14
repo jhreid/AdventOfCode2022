@@ -92,6 +92,9 @@ func main() {
 
 	partOne := dropSand(cave, Pos{500, 0})
 	fmt.Println(partOne)
+
+	partTwo := dropSand2(cave, Pos{500, 0})
+	fmt.Println(partTwo)
 }
 
 func buildCave(input []string) Cave {
@@ -124,6 +127,37 @@ func dropSand(c Cave, start Pos) int {
 		current = next
 		if current.y > maxY {
 			break
+		}
+	}
+
+	return c.countSand()
+}
+
+func dropSand2(c Cave, start Pos) int {
+	maxY := c.maxY()
+	current := start
+
+	for {
+		next := Pos{current.x, current.y + 1}
+		if c[next] > 0 { // blocked
+			next = Pos{current.x - 1, current.y + 1}
+			if c[next] > 0 { // still blocked
+				next = Pos{current.x + 1, current.y + 1}
+				if c[next] > 0 { // can't fall, add to cave
+					c[current] = 2
+					if current == start {
+						break
+					}
+					current = start
+					continue
+				}
+			}
+		}
+		if current.y == maxY+1 { // hit the floor
+			c[current] = 2
+			current = start
+		} else {
+			current = next
 		}
 	}
 
