@@ -58,6 +58,54 @@ func clearInRow(sensors []Sensor, row int) int {
 	return len(cells)
 }
 
+func findBeacon(sensors []Sensor, max int) Pos {
+	result := Pos{0, 0}
+	rowSensors := make(map[int][]Sensor)
+	for _, s := range sensors {
+		startY := s.position.y - s.distanceToBeacon
+		endY := s.position.y + s.distanceToBeacon
+		if startY < 0 {
+			startY = 0
+		}
+		if endY > max {
+			endY = max
+		}
+		for y := startY; y <= endY; y++ {
+			rowSensors[y] = append(rowSensors[y], s)
+		}
+	}
+
+	found := false
+	positions := make(map[Pos]bool)
+	row := 0
+	for y := 0; y <= max; y++ {
+		visited := make(map[Pos]bool)
+		for x := 0; x <= max; x++ {
+			for _, s := range rowSensors[y] {
+				p := Pos{x, y}
+				if s.position.distanceTo(p) <= s.distanceToBeacon {
+					visited[p] = true
+				}
+			}
+		}
+		if len(visited) == max {
+			found = true
+			row = y
+			positions = visited
+			break
+		}
+	}
+
+	if found {
+		for x := 0; x <= max; x++ {
+			if !positions[Pos{x, row}] {
+				result = Pos{x, row}
+			}
+		}
+	}
+	return result
+}
+
 func main() {
 	file, err := os.Open("input.txt")
 	if err != nil {
@@ -83,6 +131,8 @@ func main() {
 		}
 	}
 
-	y := 2000000
-	fmt.Printf("Covers in row %d: %d\n", y, clearInRow(sensors, y))
+	//y := 2000000
+	max := 4000000
+	//fmt.Printf("Covers in row %d: %d\n", y, clearInRow(sensors, y))
+	fmt.Printf("Beacon at  %v\n", findBeacon(sensors, max))
 }
