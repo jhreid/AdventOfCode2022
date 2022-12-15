@@ -15,12 +15,9 @@ type Pos struct {
 }
 
 type Sensor struct {
-	position Pos
-	beacon   Pos
-}
-
-func (s Sensor) distanceToBeacon() int {
-	return s.position.distanceTo(s.beacon)
+	position         Pos
+	beacon           Pos
+	distanceToBeacon int
 }
 
 func (s Sensor) clearCellsInRow(row int) map[Pos]int {
@@ -30,7 +27,7 @@ func (s Sensor) clearCellsInRow(row int) map[Pos]int {
 	offset := s.position.distanceTo(start)
 
 	if offset > 0 {
-		distance := s.distanceToBeacon() - offset
+		distance := s.distanceToBeacon - offset
 
 		for x := start.x - distance; x <= start.x+distance; x++ {
 			cell := Pos{x, row}
@@ -79,8 +76,9 @@ func main() {
 			ys, _ := strconv.Atoi(found[1])
 			xb, _ := strconv.Atoi(found[2])
 			yb, _ := strconv.Atoi(found[3])
-			b := Pos{xb, yb}
-			s := Sensor{Pos{xs, ys}, b}
+			bPos := Pos{xb, yb}
+			sPos := Pos{xs, ys}
+			s := Sensor{Pos{xs, ys}, bPos, sPos.distanceTo(bPos)}
 			sensors = append(sensors, s)
 		}
 	}
