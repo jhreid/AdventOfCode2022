@@ -3,9 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 )
 
@@ -40,9 +40,23 @@ func (s Sensor) clearCellsInRow(row int) map[Pos]int {
 	return cells
 }
 
+func Abs(i int) int {
+	if i < 0 {
+		return -i
+	}
+	return i
+}
+
+func Max(a, b int) int {
+	if a < b {
+		return b
+	}
+	return a
+}
+
 func (p Pos) distanceTo(other Pos) int {
-	x := math.Abs(float64(p.x - other.x))
-	y := math.Abs(float64(p.y - other.y))
+	x := Abs(p.x - other.x)
+	y := Abs(p.y - other.y)
 
 	return int(x + y)
 }
@@ -60,46 +74,31 @@ func clearInRow(sensors []Sensor, row int) int {
 
 func findBeacon(sensors []Sensor, max int) Pos {
 	result := Pos{0, 0}
-	rowSensors := make(map[int][]Sensor)
-	for _, s := range sensors {
-		startY := s.position.y - s.distanceToBeacon
-		endY := s.position.y + s.distanceToBeacon
-		if startY < 0 {
-			startY = 0
-		}
-		if endY > max {
-			endY = max
-		}
-		for y := startY; y <= endY; y++ {
-			rowSensors[y] = append(rowSensors[y], s)
-		}
-	}
 
-	found := false
-	positions := make(map[Pos]bool)
-	row := 0
-	for y := 0; y <= max; y++ {
-		visited := make(map[Pos]bool)
-		for x := 0; x <= max; x++ {
-			for _, s := range rowSensors[y] {
-				p := Pos{x, y}
-				if s.position.distanceTo(p) <= s.distanceToBeacon {
-					visited[p] = true
-				}
+	for y := 0; y <= max+1; y++ {
+		lines := [][]int{}
+		for _, s := range sensors {
+			distFromRow := Abs(s.position.y - y)
+			offset := s.distanceToBeacon - distFromRow
+			if offset >= 0 {
+				lines = append(lines, []int{s.position.x - offset, s.position.x + offset})
 			}
 		}
-		if len(visited) == max {
-			found = true
-			row = y
-			positions = visited
-			break
-		}
-	}
 
-	if found {
-		for x := 0; x <= max; x++ {
-			if !positions[Pos{x, row}] {
-				result = Pos{x, row}
+		sort.Slice(lines, func(i, j int) bool { // sort on first value
+			return lines[i][0] < lines[j][0]
+		})
+
+		testEnd := lines[0][1] // first line end
+
+		for _, nextRange := range lines[1:] { // iterate over rest looking for overlaps or gaps
+			if nextRange[0] <= testEnd { // overlap
+				testEnd = Max(nextRange[1], testEnd)
+			} else {
+				if nextRange[0]-1 > testEnd { // gap
+					return Pos{nextRange[0] - 1, y}
+				}
+				testEnd = nextRange[1]
 			}
 		}
 	}
@@ -134,5 +133,7 @@ func main() {
 	//y := 2000000
 	max := 4000000
 	//fmt.Printf("Covers in row %d: %d\n", y, clearInRow(sensors, y))
-	fmt.Printf("Beacon at  %v\n", findBeacon(sensors, max))
+	beacon := findBeacon(sensors, max)
+	fmt.Printf("Beacon at  %v\n", beacon)
+	fmt.Printf("Signal strength  %d\n", beacon.x*4000000+beacon.y)
 }
