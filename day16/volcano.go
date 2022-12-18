@@ -23,18 +23,14 @@ type Node struct {
 	children []*Node
 }
 
-func (n Node) calcPressure(minute int) int {
-	if n.rate > 0 {
-		minute -= 2
-	} else {
-		minute -= 1
-	}
+func (n Node) calcPressure(tick int) int {
+	tick += n.distance
 
-	pressure := n.rate * minute
+	pressure := n.rate * (30 - tick)
 	maxChildPressure := 0
 
 	for _, c := range n.children {
-		childPressure := c.calcPressure(minute)
+		childPressure := c.calcPressure(tick + 1)
 		if childPressure > maxChildPressure {
 			maxChildPressure = childPressure
 		}
@@ -49,7 +45,7 @@ func (n Node) calcPressure(minute int) int {
 // remove that cave from valuable list and start process again from there
 
 func main() {
-	file, err := os.Open("test.txt")
+	file, err := os.Open("input.txt")
 	if err != nil {
 		fmt.Printf("Could not open input file: %v\n", err)
 	}
@@ -78,7 +74,7 @@ func main() {
 
 	resultOne := walkTunnels(caves, valuable, Node{"AA", 0, 0, []*Node{}}, make(map[string]bool))
 
-	fmt.Println(resultOne.calcPressure(30))
+	fmt.Println(resultOne.calcPressure(0))
 
 	// fmt.Println(bfs(caves, "HH", "DD"))
 }
