@@ -1,0 +1,44 @@
+func (d Droplet) isInside(c Cube) bool {
+	left := false
+	right := false
+	up := false
+	down := false
+	front := false
+	back := false
+	d.cubes[c] = 0
+	dx := 1
+	for dx >= 0 {
+		test := Cube{c.x - dx, c.y, c.z}
+		if _, exists := d.cubes[test]; exists {
+			left = true
+			break
+		}
+	}
+	test = Cube{c.x + 1, c.y, c.z}
+	if _, exists := d.cubes[test]; exists {
+		d.cubes[test]++
+		d.cubes[c]++
+	}
+	test = Cube{c.x, c.y - 1, c.z}
+	if _, exists := d.cubes[test]; exists {
+		d.cubes[test]++
+		d.cubes[c]++
+	}
+	test = Cube{c.x, c.y + 1, c.z}
+	if _, exists := d.cubes[test]; exists {
+		d.cubes[test]++
+		d.cubes[c]++
+	}
+	test = Cube{c.x, c.y, c.z - 1}
+	if _, exists := d.cubes[test]; exists {
+		d.cubes[test]++
+		d.cubes[c]++
+	}
+	test = Cube{c.x, c.y, c.z + 1}
+	if _, exists := d.cubes[test]; exists {
+		d.cubes[test]++
+		d.cubes[c]++
+	}
+
+	return left && right && up && down && front && back
+}
