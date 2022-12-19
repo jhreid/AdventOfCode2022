@@ -17,10 +17,11 @@ type Cave struct {
 }
 
 type Node struct {
-	label    string
-	distance int
-	rate     int
-	children []*Node
+	label     string
+	distance  int
+	totaldist int
+	rate      int
+	children  []*Node
 }
 
 func (n Node) calcPressure(tick int) int {
@@ -72,11 +73,10 @@ func main() {
 
 	valuable := findValuableCaves(caves)
 
-	resultOne := walkTunnels(caves, valuable, Node{"AA", 0, 0, []*Node{}}, make(map[string]bool))
+	resultOne := walkTunnels(caves, valuable, Node{"AA", 0, 0, 0, []*Node{}}, make(map[string]bool))
 
 	fmt.Println(resultOne.calcPressure(0))
 
-	// fmt.Println(bfs(caves, "HH", "DD"))
 }
 
 func assignChildren(caves map[string]*Cave) {
@@ -117,8 +117,11 @@ func walkTunnels(caves map[string]*Cave, valuable map[string]*Cave, start Node, 
 			newVisited[key] = val
 		}
 		newVisited[start.label] = true
-		thisNode := walkTunnels(caves, newValuable, Node{v.label, distance, v.rate, []*Node{}}, newVisited)
-		start.children = append(start.children, &thisNode)
+		distancehere := start.totaldist + distance
+		if distancehere < 30 {
+			thisNode := walkTunnels(caves, newValuable, Node{v.label, distance, distancehere, v.rate, []*Node{}}, newVisited)
+			start.children = append(start.children, &thisNode)
+		}
 	}
 
 	return start
